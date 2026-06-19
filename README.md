@@ -22,9 +22,9 @@ Aplicación web desarrollada con Next.js que presenta Chacra La Peregrina, desta
 - **Lenguaje**: TypeScript
 - **Estilos**: Tailwind CSS
 - **Animaciones**: Framer Motion
-- **Base de datos**: PostgreSQL con Prisma ORM
 - **UI Components**: Radix UI
 - **Iconos**: Lucide React
+- **Formulario**: Envío directo por email (sin base de datos)
 
 ## 🚀 Instalación
 
@@ -32,7 +32,6 @@ Aplicación web desarrollada con Next.js que presenta Chacra La Peregrina, desta
 
 - Node.js 18+ 
 - npm o yarn
-- PostgreSQL
 
 ### Pasos
 
@@ -49,22 +48,17 @@ Aplicación web desarrollada con Next.js que presenta Chacra La Peregrina, desta
    yarn install
    ```
 
-3. **Configurar variables de entorno**
+3. **Configurar variables de entorno (OPCIONAL)**
    
-   Crear archivo `.env` basado en `.env.example`:
+   El sitio funciona sin configuración adicional. Solo necesitás configurar variables si querés que el formulario envíe emails automáticamente:
+   
    ```bash
-   cp .env .env.local
+   cp .env.example .env.local
    ```
    
-   Configurar las variables necesarias en `.env.local`
+   Editar `.env.local` y agregar las claves de API para envío de emails (ver `.env.example` para detalles)
 
-4. **Configurar base de datos**
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
-
-5. **Ejecutar en desarrollo**
+4. **Ejecutar en desarrollo**
    ```bash
    npm run dev
    # o
@@ -72,6 +66,8 @@ Aplicación web desarrollada con Next.js que presenta Chacra La Peregrina, desta
    ```
 
    Abrir [http://localhost:3000](http://localhost:3000) en el navegador.
+
+> **Nota**: El formulario de contacto está configurado para enviar emails a `ebarlocco@gmail.com`. Si no configurás las variables de entorno para emails, el formulario seguirá funcionando pero no enviará notificaciones.
 
 ## 📦 Scripts disponibles
 

@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -20,12 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Missing required fields' }, { status: 400 });
     }
 
-    // Save to database
-    await prisma.contactInquiry.create({
-      data: { name, email, phone, eventType, eventDate, guestCount, message, language },
-    });
-
-    // Send email notification
+    // Send email notification directly (no database required)
     const htmlBody = `
       <div style="font-family: 'Montserrat', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #faf8f5;">
         <div style="background: #8B7355; padding: 24px 30px;">
