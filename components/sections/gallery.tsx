@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -26,6 +26,17 @@ export default function GallerySection() {
   const { t } = useLocale();
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [featured, setFeatured] = useState(0);
+  const [featuredPaused, setFeaturedPaused] = useState(false);
+
+  // Carrusel destacado automático (cambia cada 5 seg, pausa al hover / fuera de vista)
+  useEffect(() => {
+    if (featuredPaused || !inView || lightboxIndex !== null) return;
+    const interval = setInterval(() => {
+      setFeatured((prev) => (prev + 1) % GALLERY_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [featuredPaused, inView, lightboxIndex]);
 
   const openLightbox = (i: number) => setLightboxIndex(i);
   const closeLightbox = () => setLightboxIndex(null);
@@ -50,6 +61,60 @@ export default function GallerySection() {
           </p>
         </motion.div>
 
+        {/* Carrusel destacado automático */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          className="relative mb-6 md:mb-8 rounded-2xl overflow-hidden shadow-2xl cursor-pointer group bg-[#1a1512] aspect-[16/9] md:aspect-[21/9]"
+          onMouseEnter={() => setFeaturedPaused(true)}
+          onMouseLeave={() => setFeaturedPaused(false)}
+          onClick={() => openLightbox(featured)}
+        >
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={featured}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+              src={withBasePath(GALLERY_IMAGES[featured].src)}
+              alt={GALLERY_IMAGES[featured].alt}
+              className="absolute inset-0 w-full h-full object-cover ken-burns-soft"
+            />
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+          {/* Caption */}
+          <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 flex items-end justify-between gap-4">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={featured}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-white text-lg md:text-2xl font-display drop-shadow-lg"
+              >
+                {GALLERY_IMAGES[featured].alt}
+              </motion.p>
+            </AnimatePresence>
+            {/* Dots */}
+            <div className="hidden sm:flex gap-1.5 flex-shrink-0">
+              {GALLERY_IMAGES.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setFeatured(i); }}
+                  aria-label={`Ver imagen ${i + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${
+                    featured === i ? 'w-6 bg-white' : 'w-1.5 bg-white/40 hover:bg-white/70'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
         {/* Masonry-style grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[200px] md:auto-rows-[220px]">
           {GALLERY_IMAGES.map((img, i) => (
@@ -58,7 +123,7 @@ export default function GallerySection() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={inView ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.6, delay: i * 0.08 }}
-              className={`relative rounded-xl overflow-hidden cursor-pointer group ${img.span}`}
+              className={`shine-on-hover relative rounded-xl overflow-hidden cursor-pointer group ${img.span}`}
               onClick={() => openLightbox(i)}
             >
               <img

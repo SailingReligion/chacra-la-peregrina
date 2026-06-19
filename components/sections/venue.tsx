@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useLocale } from '@/lib/locale-context';
@@ -40,10 +40,29 @@ export default function VenueSection() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [activeTab, setActiveTab] = useState(0);
   const [activeImage, setActiveImage] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   const tab = VENUE_TABS[activeTab];
   const venueData = t?.venue || {};
   const tabData = venueData[tab.key] || {};
+
+  // Rotación automática: avanza imágenes y, al terminar un tab, pasa al siguiente.
+  // Se pausa al pasar el mouse por encima o cuando la sección no está visible.
+  useEffect(() => {
+    if (paused || !inView) return;
+    const interval = setInterval(() => {
+      setActiveImage((prevImg) => {
+        const total = VENUE_TABS[activeTab].images.length;
+        if (prevImg + 1 < total) {
+          return prevImg + 1;
+        }
+        // Terminó el tab actual → pasar al siguiente
+        setActiveTab((prevTab) => (prevTab + 1) % VENUE_TABS.length);
+        return 0;
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [activeTab, paused, inView]);
 
   return (
     <section id="venue" ref={ref} className="py-24 md:py-32 bg-[#FAF6F1]">
@@ -86,17 +105,22 @@ export default function VenueSection() {
         <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Image side */}
           <motion.div
-            key={`${activeTab}-${activeImage}`}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
             className="relative"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
           >
-            <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
-              <img
+            <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl bg-[#2C2420]">
+              <motion.img
+                key={`${activeTab}-${activeImage}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7 }}
                 src={withBasePath(tab.images[activeImage])}
                 alt={tabData.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover ken-burns"
               />
             </div>
             {/* Thumbnail strip */}

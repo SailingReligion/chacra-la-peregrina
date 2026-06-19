@@ -50,14 +50,14 @@ export default function ValuesSection() {
               initial={{ opacity: 0, y: 40 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: i * 0.2 }}
-              className="group cursor-pointer"
+              className="group cursor-pointer transition-transform duration-500 hover:-translate-y-2"
               onClick={() => {
                 const targets = ['venue', 'venue', 'gallery'];
                 const el = document.getElementById(targets[i]);
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-6 shadow-lg">
+              <div className="shine-on-hover relative aspect-[4/3] rounded-2xl overflow-hidden mb-6 shadow-lg group-hover:shadow-2xl transition-shadow duration-500">
                 <img
                   src={withBasePath(IMAGES[i])}
                   alt={item.title}

@@ -1,13 +1,30 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useLocale } from '@/lib/locale-context';
 import { withBasePath } from '@/lib/utils';
 import { BrandName } from '@/components/brand-name';
 
+// Fondos del hero que van rotando con crossfade
+const HERO_BACKGROUNDS = [
+  '/images/hero/sunset-pool-reflection.jpg',
+  '/images/piscina/piscina-atardecer.jpg',
+  '/images/paisajes/atardecer-laguna.jpg',
+];
+
 export default function HeroSection() {
   const { t } = useLocale();
+  const [bgIndex, setBgIndex] = useState(0);
+
+  // Rotación automática de fondos cada 8 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % HERO_BACKGROUNDS.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
 
   const scrollToContact = () => {
     const el = document.getElementById('contact');
@@ -19,14 +36,27 @@ export default function HeroSection() {
       id="hero"
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Background with parallax */}
-      <div
-        className="absolute inset-0 parallax-hero"
-        style={{ backgroundImage: `url(${withBasePath('/images/hero/sunset-pool-reflection.jpg')})` }}
-      />
+      {/* Fondos rotando con crossfade + zoom lento (Ken Burns) */}
+      <div className="absolute inset-0 bg-[#2C2420]">
+        <AnimatePresence>
+          <motion.div
+            key={bgIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 2, ease: 'easeInOut' }}
+            className="absolute inset-0"
+          >
+            <div
+              className="absolute inset-0 bg-cover bg-center hero-bg-zoom"
+              style={{ backgroundImage: `url(${withBasePath(HERO_BACKGROUNDS[bgIndex])})` }}
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/70 z-[1]" />
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
@@ -69,9 +99,23 @@ export default function HeroSection() {
         </motion.div>
       </div>
 
+      {/* Indicadores de fondo activo */}
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 flex gap-2.5">
+        {HERO_BACKGROUNDS.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setBgIndex(i)}
+            aria-label={`Ver imagen ${i + 1}`}
+            className={`h-2 rounded-full transition-all duration-500 ${
+              bgIndex === i ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'
+            }`}
+          />
+        ))}
+      </div>
+
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
         animate={{ y: [0, 12, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
       >

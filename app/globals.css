@@ -115,3 +115,71 @@
 .slide-up {
   animation: slideUp 0.5s ease-out;
 }
+
+/* ===== Ken Burns effect (zoom lento continuo en imágenes) ===== */
+@keyframes kenburns {
+  0%   { transform: scale(1) translate(0, 0); }
+  50%  { transform: scale(1.12) translate(-1.5%, -1%); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+.ken-burns {
+  animation: kenburns 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Variante más sutil para fondos */
+@keyframes kenburnsSoft {
+  0%   { transform: scale(1.05); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1.05); }
+}
+.ken-burns-soft {
+  animation: kenburnsSoft 24s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ===== Hero crossfade entre fondos ===== */
+@keyframes heroZoom {
+  from { transform: scale(1.08); }
+  to   { transform: scale(1.18); }
+}
+.hero-bg-zoom {
+  animation: heroZoom 12s ease-out forwards;
+  will-change: transform;
+}
+
+/* ===== Brillo suave que recorre las tarjetas al hover ===== */
+.shine-on-hover {
+  position: relative;
+  overflow: hidden;
+}
+.shine-on-hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0s;
+  pointer-events: none;
+}
+.shine-on-hover:hover::after {
+  left: 125%;
+  transition: left 0.9s ease;
+}
+
+/* Respeta usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .ken-burns,
+  .ken-burns-soft,
+  .hero-bg-zoom {
+    animation: none !important;
+  }
+}

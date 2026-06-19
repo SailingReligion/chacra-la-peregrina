@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Heart, Briefcase, Cake } from 'lucide-react';
@@ -18,19 +18,29 @@ export default function EventsSection() {
   const { t } = useLocale();
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [activeEvent, setActiveEvent] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   const eventsData = t?.events || {};
   const types = eventsData.types || [];
 
+  // Rotación automática entre tipos de evento (se pausa al hover / fuera de vista)
+  useEffect(() => {
+    if (paused || !inView || types.length === 0) return;
+    const interval = setInterval(() => {
+      setActiveEvent((prev) => (prev + 1) % types.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [paused, inView, types.length]);
+
   return (
     <section id="events" className="py-24 md:py-32 bg-white relative overflow-hidden">
-      {/* Background image that changes */}
+      {/* Background image that changes (con zoom lento Ken Burns) */}
       <div className="absolute inset-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeEvent}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.08 }}
+            animate={{ opacity: 0.12 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8 }}
             className="absolute inset-0"
@@ -38,7 +48,7 @@ export default function EventsSection() {
             <img
               src={withBasePath(EVENT_IMAGES[activeEvent])}
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover ken-burns-soft"
             />
           </motion.div>
         </AnimatePresence>
@@ -71,10 +81,12 @@ export default function EventsSection() {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
                 onClick={() => setActiveEvent(i)}
-                className={`flex-1 text-left p-6 md:p-8 rounded-2xl transition-all duration-500 border ${
+                onMouseEnter={() => { setPaused(true); setActiveEvent(i); }}
+                onMouseLeave={() => setPaused(false)}
+                className={`shine-on-hover flex-1 text-left p-6 md:p-8 rounded-2xl transition-all duration-500 border ${
                   isActive
-                    ? 'bg-[#C8956C] text-white border-[#C8956C] shadow-xl shadow-[#C8956C]/20 scale-[1.02]'
-                    : 'bg-white/80 backdrop-blur-sm text-[#2C2420] border-[#2C2420]/10 hover:border-[#C8956C]/40 hover:shadow-lg'
+                    ? 'bg-[#C8956C] text-white border-[#C8956C] shadow-xl shadow-[#C8956C]/20 scale-[1.03] -translate-y-1'
+                    : 'bg-white/80 backdrop-blur-sm text-[#2C2420] border-[#2C2420]/10 hover:border-[#C8956C]/40 hover:shadow-lg hover:-translate-y-1'
                 }`}
               >
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${
