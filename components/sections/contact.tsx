@@ -6,11 +6,12 @@ import { useInView } from 'react-intersection-observer';
 import { Send, CheckCircle, AlertCircle, MapPin, ExternalLink } from 'lucide-react';
 import { useLocale } from '@/lib/locale-context';
 
-const OSM_EMBED = 'https://www.openstreetmap.org/export/embed.html?bbox=-55.1200%2C-34.8560%2C-55.1010%2C-34.8420&layer=mapnik&marker=-34.848869%2C-55.110706';
+// Google Maps embebido (no requiere API key — formato estándar output=embed).
+const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps?q=-34.848869,-55.110706&hl=es&z=15&output=embed';
 const MAPS_LINK = 'https://www.google.com/maps/search/?api=1&query=-34.848869%2C-55.110706';
 
 export default function ContactSection() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [formState, setFormState] = useState({
     name: '',
@@ -20,6 +21,7 @@ export default function ContactSection() {
     eventDate: '',
     guestCount: '',
     message: '',
+    website: '', // honeypot anti-spam (invisible para humanos)
   });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
@@ -34,12 +36,12 @@ export default function ContactSection() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formState),
+        body: JSON.stringify({ ...formState, language: locale }),
       });
 
       if (res.ok) {
         setStatus('success');
-        setFormState({ name: '', email: '', phone: '', eventType: '', eventDate: '', guestCount: '', message: '' });
+        setFormState({ name: '', email: '', phone: '', eventType: '', eventDate: '', guestCount: '', message: '', website: '' });
       } else {
         setStatus('error');
       }
@@ -155,6 +157,21 @@ export default function ContactSection() {
                 />
               </div>
 
+              {/* Honeypot anti-spam: invisible para humanos, atrae a los bots.
+                  Si se rellena, el servidor descarta la solicitud. */}
+              <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', top: 'auto', height: 0, width: 0, overflow: 'hidden' }}>
+                <label htmlFor="website">No completar este campo</label>
+                <input
+                  type="text"
+                  id="website"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={formState.website}
+                  onChange={(e) => setFormState({ ...formState, website: e.target.value })}
+                />
+              </div>
+
               <button
                 type="submit"
                 disabled={status === 'sending'}
@@ -187,11 +204,12 @@ export default function ContactSection() {
             <div className="rounded-2xl overflow-hidden shadow-xl border border-[#2C2420]/5">
               <div className="aspect-video relative">
                 <iframe
-                  src={OSM_EMBED}
+                  src={GOOGLE_MAPS_EMBED}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
                   title="Mapa - Chacra La Peregrina, Laguna del Sauce"
                   className="absolute inset-0"
                 />

@@ -11,8 +11,10 @@ Aplicación web desarrollada con Next.js que presenta Chacra La Peregrina, desta
 - 🌐 **Multiidioma**: Soporte para Español, Inglés y Portugués
 - 📱 **Responsive**: Diseño adaptable a todos los dispositivos
 - 🎨 **Animaciones**: Interfaz moderna con Framer Motion
-- 📧 **Formulario de contacto**: Sistema integrado para consultas
-- 🗺️ **Ubicación interactiva**: Mapa integrado de OpenStreetMap
+- 📧 **Formulario de contacto**: Con email a la empresa + confirmación automática al cliente
+- 🛡️ **Anti-spam**: Honeypot + rate-limit por IP + validación server-side (zod)
+- 📊 **Registro de leads**: Cada consulta queda guardada en una Google Sheet (opcional)
+- 🗺️ **Ubicación interactiva**: Mapa de Google Maps integrado
 - 🖼️ **Galería visual**: Presentación atractiva de las instalaciones
 - 🌓 **Modo oscuro/claro**: Temas personalizables
 
@@ -104,6 +106,58 @@ nextjs_space/
 - 🇪🇸 Español (predeterminado)
 - 🇬🇧 Inglés
 - 🇧🇷 Portugués
+
+## 📨 Cómo funciona el formulario de contacto
+
+Cuando alguien envía el formulario, el sistema:
+
+1. **Valida** los datos en el servidor (formato de email, longitudes, campos requeridos).
+2. **Frena spam** con tres capas: un campo honeypot invisible, un límite de 5 envíos cada 10 minutos por IP, y la validación de arriba.
+3. **Envía 2 emails**:
+   - Uno a la empresa (`CONTACT_TO_EMAIL`) con todos los datos de la consulta.
+   - Otro al cliente confirmando "Recibimos tu solicitud" (en su idioma).
+4. **Guarda el lead** en una Google Sheet (si está configurada), para no perder nunca un contacto.
+
+### Configurar el envío de emails (Resend)
+
+1. Creá una cuenta gratis en [resend.com](https://resend.com) (100 emails/día gratis).
+2. Para probar rápido podés usar el remitente `onboarding@resend.dev`. Para producción, verificá tu dominio y usá algo como `eventos@chacralaperegrina.com`.
+3. Generá una **API Key** y cargala en `RESEND_API_KEY`.
+4. Configurá `RESEND_FROM_EMAIL` y `CONTACT_TO_EMAIL` (ver `.env.example`).
+
+> Si no configurás Resend, en el entorno de preview de Abacus se usa el servicio interno como respaldo. Para producción real (Vercel/Squarespace), **usá Resend**.
+
+## 📊 Guardar consultas en Google Sheet
+
+Método simple y sin credenciales complejas, usando un Google Apps Script:
+
+1. Creá una **Google Sheet** nueva.
+2. Andá a **Extensiones → Apps Script**.
+3. Pegá este código y guardá:
+
+   ```javascript
+   function doPost(e) {
+     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+     var data = JSON.parse(e.postData.contents);
+     // Si la hoja está vacía, escribe los encabezados
+     if (sheet.getLastRow() === 0) {
+       sheet.appendRow(['Fecha', 'Nombre', 'Email', 'Teléfono', 'Tipo Evento', 'Fecha Evento', 'Invitados', 'Mensaje', 'Idioma']);
+     }
+     sheet.appendRow([
+       data.timestamp, data.name, data.email, data.phone,
+       data.eventType, data.eventDate, data.guestCount, data.message, data.language
+     ]);
+     return ContentService.createTextOutput(JSON.stringify({ result: 'ok' }))
+       .setMimeType(ContentService.MimeType.JSON);
+   }
+   ```
+
+4. Click en **Implementar → Nueva implementación → Aplicación web**.
+   - "Ejecutar como": tu cuenta.
+   - "Quién tiene acceso": **Cualquiera**.
+5. Copiá la **URL de la app web** y pegala en `GOOGLE_SHEET_WEBHOOK_URL`.
+
+¡Listo! Cada consulta aparecerá como una fila nueva en tu planilla, que podés ver desde el celular.
 
 ## 📞 Contacto
 
