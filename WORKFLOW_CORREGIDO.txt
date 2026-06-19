@@ -1,0 +1,96 @@
+# ============================================================================
+#  WORKFLOW CORREGIDO  —  copiá y pegá TODO esto en GitHub
+# ============================================================================
+#
+#  ¿Por qué? El paso "Preparar archivos para GitHub Pages" tenía un error:
+#  intentaba copiar dentro de una carpeta (_next) que todavía no existía,
+#  y además no copiaba las imágenes ni la página de error 404. Por eso el
+#  deploy fallaba y/o las imágenes no aparecían.
+#
+#  CÓMO APLICARLO (5 minutos, sin saber de programación):
+#  1) Entrá a este link (te pide login de GitHub):
+#     https://github.com/SailingReligion/chacra-la-peregrina/edit/main/.github/workflows/deploy.yml
+#  2) Seleccioná TODO el contenido del editor (Ctrl+A) y borralo.
+#  3) Copiá TODO lo que está ABAJO de la línea de guiones y pegalo.
+#  4) Botón verde "Commit changes..." -> "Commit changes".
+#  5) Andá a la pestaña "Actions" y mirá que el deploy termine en verde ✅
+#
+# ----------------------------------------------------------------------------
+
+name: Deploy a GitHub Pages
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci --legacy-peer-deps
+
+      - name: Build estático
+        run: npm run build
+        env:
+          # IMPORTANTE: esta línea hace que estilos e imágenes carguen bien
+          # en https://sailingreligion.github.io/chacra-la-peregrina
+          NEXT_PUBLIC_BASE_PATH: /chacra-la-peregrina
+
+          # Cuando conecten el dominio de Squarespace, comentá la línea de
+          # arriba (poné un # adelante) para que el sitio funcione en la raíz.
+
+          NEXT_OUTPUT_MODE: export
+          NEXT_PUBLIC_SITE_URL: https://chacralaperegrina.com
+          # Si ya tienen la access key de Web3Forms, pueden agregarla acá:
+          # NEXT_PUBLIC_WEB3FORMS_KEY: su_access_key_aqui
+
+      - name: Preparar archivos para GitHub Pages
+        run: |
+          # Creamos la carpeta final, incluyendo _next (esto era lo que faltaba)
+          mkdir -p .next/github-pages/_next
+          # El HTML que generó Next.js
+          cp -r .next/server/app/. .next/github-pages/
+          # Los estilos y el código JS
+          cp -r .next/static .next/github-pages/_next/static
+          # Las imágenes y demás archivos de la carpeta public (logo, fotos, etc.)
+          cp -r public/. .next/github-pages/ 2>/dev/null || true
+          # La página de error 404
+          cp .next/github-pages/_not-found.html .next/github-pages/404.html 2>/dev/null || true
+          # Archivo que evita que GitHub Pages ignore las carpetas que empiezan con _
+          touch .next/github-pages/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./.next/github-pages
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
