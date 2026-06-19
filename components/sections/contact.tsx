@@ -10,6 +10,27 @@ import { useLocale } from '@/lib/locale-context';
 const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps?q=-34.848869,-55.110706&hl=es&z=15&output=embed';
 const MAPS_LINK = 'https://www.google.com/maps/search/?api=1&query=-34.848869%2C-55.110706';
 
+// ===========================================================================
+//  ⚠️  IMPORTANTE — ACCESS KEY DE WEB3FORMS (configurar antes de publicar)
+// ===========================================================================
+//  El formulario envía las consultas a tu casilla de email a través de
+//  Web3Forms (servicio gratuito, no requiere servidor propio).
+//
+//  PASOS (los hace una sola vez tu hermano o vos):
+//   1. Entrá a https://web3forms.com  e ingresá con tu email.
+//   2. Creá un "Access Key" nuevo y poné como email de destino:
+//        ebarlocco@gmail.com
+//   3. Copiá la clave que te dan (un código largo) y pegala abajo,
+//      reemplazando el texto PEGAR_AQUI_TU_ACCESS_KEY.
+//
+//  La clave NO es secreta: Web3Forms está diseñado para que viva en el
+//  código del sitio. Igualmente, si preferís, podés definirla como variable
+//  de entorno NEXT_PUBLIC_WEB3FORMS_KEY y tiene prioridad sobre la de abajo.
+// ===========================================================================
+const WEB3FORMS_ACCESS_KEY =
+  process.env.NEXT_PUBLIC_WEB3FORMS_KEY || 'PEGAR_AQUI_TU_ACCESS_KEY';
+const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
+
 export default function ContactSection() {
   const { t, locale } = useLocale();
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
@@ -30,16 +51,45 @@ export default function ContactSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Honeypot anti-spam: si el campo invisible "website" tiene contenido,
+    // es un bot. Simulamos éxito y no enviamos nada.
+    if (formState.website) {
+      setStatus('success');
+      setFormState({ name: '', email: '', phone: '', eventType: '', eventDate: '', guestCount: '', message: '', website: '' });
+      return;
+    }
+
     setStatus('sending');
 
+    // Armamos el cuerpo para Web3Forms (el servicio reenvía esto por email).
+    const payload = {
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: `Nueva consulta de ${formState.name || 'la web'} — Chacra La Peregrina`,
+      from_name: 'Chacra La Peregrina (web)',
+      // Campos del formulario:
+      Nombre: formState.name,
+      Email: formState.email,
+      Telefono: formState.phone,
+      'Tipo de evento': formState.eventType,
+      Fecha: formState.eventDate,
+      Invitados: formState.guestCount,
+      Mensaje: formState.message,
+      Idioma: locale,
+      // Honeypot nativo de Web3Forms (refuerzo anti-spam):
+      botcheck: '',
+    };
+
     try {
-      const res = await fetch('/api/contact', {
+      const res = await fetch(WEB3FORMS_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formState, language: locale }),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
       });
 
-      if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data?.success) {
         setStatus('success');
         setFormState({ name: '', email: '', phone: '', eventType: '', eventDate: '', guestCount: '', message: '', website: '' });
       } else {

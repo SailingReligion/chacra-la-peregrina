@@ -5,14 +5,12 @@ import { Toaster } from '@/components/ui/sonner';
 import { ChunkLoadErrorHandler } from '@/components/chunk-load-error-handler';
 import { LocaleProvider } from '@/lib/locale-context';
 
-export const dynamic = 'force-dynamic';
-
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
 export async function generateMetadata() {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://chacralaperegrina.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chacralaperegrina.com';
   return {
     metadataBase: new URL(baseUrl),
     title: 'Chacra La Peregrina | Eventos Exclusivos en Laguna del Sauce, Punta del Este',
@@ -51,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               '@type': 'EventVenue',
               name: 'Chacra La Peregrina',
               description: 'Exclusive event venue on Laguna del Sauce, Punta del Este, Uruguay. 7 hectares of pristine nature for intimate weddings, corporate retreats, and family celebrations.',
-              url: process.env.NEXTAUTH_URL || 'https://chacralaperegrina.com',
+              url: process.env.NEXT_PUBLIC_SITE_URL || 'https://chacralaperegrina.com',
               address: {
                 '@type': 'PostalAddress',
                 streetAddress: 'El Pejerrey',
