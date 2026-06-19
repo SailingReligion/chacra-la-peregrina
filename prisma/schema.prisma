@@ -1,0 +1,28 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/chacra_la_peregrina/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model ContactInquiry {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  eventType   String
+  eventDate   String?
+  guestCount  String?
+  message     String?
+  language    String   @default("es")
+  status      String   @default("new")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([status])
+}
