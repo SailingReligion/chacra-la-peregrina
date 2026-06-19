@@ -1,25 +1,15 @@
-# Workflow de GitHub Actions para deploy automático a GitHub Pages
-#
-# Este workflow se ejecuta cada vez que se hace un push a la rama 'main'.
-# Compila el sitio Next.js en modo estático y lo publica en GitHub Pages.
-
 name: Deploy a GitHub Pages
 
 on:
-  # Se ejecuta en cada push a main
   push:
     branches: ['main']
-
-  # Permite ejecutarlo manualmente desde la pestaña "Actions"
   workflow_dispatch:
 
-# Permisos necesarios para publicar en GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Solo permite un deploy a la vez
 concurrency:
   group: 'pages'
   cancel-in-progress: false
@@ -43,13 +33,13 @@ jobs:
       - name: Build estático
         run: npm run build
         env:
-          # IMPORTANTE: Esta línea hace que los estilos e imágenes carguen correctamente
-          # en GitHub Pages (https://sailingreligion.github.io/chacra-la-peregrina)
+          # IMPORTANTE: esta línea hace que estilos e imágenes carguen bien
+          # en https://sailingreligion.github.io/chacra-la-peregrina
           NEXT_PUBLIC_BASE_PATH: /chacra-la-peregrina
-          
-          # Una vez que conecten el dominio de Squarespace, comentar la línea de arriba
-          # (ponerle un # adelante) para que el sitio funcione en la raíz.
-          
+
+          # Cuando conecten el dominio de Squarespace, comentá la línea de
+          # arriba (poné un # adelante) para que el sitio funcione en la raíz.
+
           NEXT_OUTPUT_MODE: export
           NEXT_PUBLIC_SITE_URL: https://chacralaperegrina.com
           # Si ya tienen la access key de Web3Forms, pueden agregarla acá:
@@ -57,13 +47,18 @@ jobs:
 
       - name: Preparar archivos para GitHub Pages
         run: |
-          # GitHub Pages necesita index.html en la raíz
-          # Next.js export pone todo en .next/server/app/
-          mkdir -p .next/github-pages
+          # Creamos la carpeta final, incluyendo _next (esto era lo que faltaba)
+          mkdir -p .next/github-pages/_next
+          # El HTML que generó Next.js
           cp -r .next/server/app/. .next/github-pages/
+          # Los estilos y el código JS
           cp -r .next/static .next/github-pages/_next/static
-          # Copiar archivo .nojekyll
-          cp public/.nojekyll .next/github-pages/
+          # Las imágenes y demás archivos de la carpeta public (logo, fotos, etc.)
+          cp -r public/. .next/github-pages/ 2>/dev/null || true
+          # La página de error 404
+          cp .next/github-pages/_not-found.html .next/github-pages/404.html 2>/dev/null || true
+          # Archivo que evita que GitHub Pages ignore las carpetas que empiezan con _
+          touch .next/github-pages/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
