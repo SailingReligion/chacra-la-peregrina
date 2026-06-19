@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Heart, Briefcase, Cake } from 'lucide-react';
 import { useLocale } from '@/lib/locale-context';
+import { withBasePath } from '@/lib/utils';
 
 const ICONS = [Heart, Briefcase, Cake];
 const EVENT_IMAGES = [
@@ -35,7 +36,7 @@ export default function EventsSection() {
             className="absolute inset-0"
           >
             <img
-              src={EVENT_IMAGES[activeEvent]}
+              src={withBasePath(EVENT_IMAGES[activeEvent])}
               alt=""
               className="w-full h-full object-cover"
             />

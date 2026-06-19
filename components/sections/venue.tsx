@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useLocale } from '@/lib/locale-context';
+import { withBasePath } from '@/lib/utils';
 
 const VENUE_TABS = [
   {
@@ -93,7 +94,7 @@ export default function VenueSection() {
           >
             <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src={tab.images[activeImage]}
+                src={withBasePath(tab.images[activeImage])}
                 alt={tabData.title}
                 className="w-full h-full object-cover"
               />
@@ -108,7 +109,7 @@ export default function VenueSection() {
                     activeImage === i ? 'ring-2 ring-[#C8956C] ring-offset-2 scale-105' : 'opacity-60 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={withBasePath(img)} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>

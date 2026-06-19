@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useLocale } from '@/lib/locale-context';
+import { withBasePath } from '@/lib/utils';
 
 export default function HeroSection() {
   const { t } = useLocale();
@@ -20,7 +21,7 @@ export default function HeroSection() {
       {/* Background with parallax */}
       <div
         className="absolute inset-0 parallax-hero"
-        style={{ backgroundImage: 'url(/images/hero/sunset-pool-reflection.jpg)' }}
+        style={{ backgroundImage: `url(${withBasePath('/images/hero/sunset-pool-reflection.jpg')})` }}
       />
 
       {/* Gradient overlay */}

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocale } from '@/lib/locale-context';
+import { withBasePath } from '@/lib/utils';
 
 const GALLERY_IMAGES = [
   { src: '/images/hero/sunset-lounge-laguna.jpg', alt: 'Atardecer desde las reposeras', span: 'col-span-2 row-span-2' },
@@ -59,7 +60,7 @@ export default function GallerySection() {
               onClick={() => openLightbox(i)}
             >
               <img
-                src={img.src}
+                src={withBasePath(img.src)}
                 alt={img.alt}
                 className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
                 loading="lazy"
@@ -111,7 +112,7 @@ export default function GallerySection() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3 }}
-              src={GALLERY_IMAGES[lightboxIndex].src}
+              src={withBasePath(GALLERY_IMAGES[lightboxIndex].src)}
               alt={GALLERY_IMAGES[lightboxIndex].alt}
               className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
