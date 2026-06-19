@@ -43,22 +43,32 @@ jobs:
       - name: Build estático
         run: npm run build
         env:
-          # IMPORTANTE: cuando usen el link de GitHub Pages sin dominio propio,
-          # descomentar la siguiente línea y poner el nombre del repo:
-          # NEXT_PUBLIC_BASE_PATH: /chacra-la-peregrina
+          # IMPORTANTE: Esta línea hace que los estilos e imágenes carguen correctamente
+          # en GitHub Pages (https://sailingreligion.github.io/chacra-la-peregrina)
+          NEXT_PUBLIC_BASE_PATH: /chacra-la-peregrina
           
           # Una vez que conecten el dominio de Squarespace, comentar la línea de arriba
-          # (o dejarla vacía) para que el sitio funcione en la raíz.
+          # (ponerle un # adelante) para que el sitio funcione en la raíz.
           
           NEXT_OUTPUT_MODE: export
           NEXT_PUBLIC_SITE_URL: https://chacralaperegrina.com
           # Si ya tienen la access key de Web3Forms, pueden agregarla acá:
           # NEXT_PUBLIC_WEB3FORMS_KEY: su_access_key_aqui
 
+      - name: Preparar archivos para GitHub Pages
+        run: |
+          # GitHub Pages necesita index.html en la raíz
+          # Next.js export pone todo en .next/server/app/
+          mkdir -p .next/github-pages
+          cp -r .next/server/app/. .next/github-pages/
+          cp -r .next/static .next/github-pages/_next/static
+          # Copiar archivo .nojekyll
+          cp public/.nojekyll .next/github-pages/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./.next
+          path: ./.next/github-pages
 
   deploy:
     environment:
