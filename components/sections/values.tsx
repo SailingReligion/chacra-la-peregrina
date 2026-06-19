@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { Leaf, Flame, Waves } from 'lucide-react';
 import { useLocale } from '@/lib/locale-context';
 import { withBasePath } from '@/lib/utils';
+import { BrandName } from '@/components/brand-name';
 
 const ICONS: Record<string, React.ReactNode> = {
   leaf: <Leaf className="w-8 h-8" />,
@@ -36,8 +37,9 @@ export default function ValuesSection() {
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-[#2C2420] mb-4">
             {t?.values?.title || 'Una experiencia única'}
           </h2>
-          <p className="text-lg text-[#8B7355] max-w-xl mx-auto">
-            {t?.values?.subtitle || 'Tres razones para elegir La Peregrina'}
+          <p className="text-lg text-[#8B7355] max-w-xl mx-auto flex items-center justify-center flex-wrap gap-2">
+            <span>Tres razones para elegir</span>
+            <BrandName size="md" className="text-[#8B7355]" />
           </p>
         </motion.div>
 

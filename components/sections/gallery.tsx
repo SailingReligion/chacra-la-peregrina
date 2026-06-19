@@ -6,6 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocale } from '@/lib/locale-context';
 import { withBasePath } from '@/lib/utils';
+import { BrandName } from '@/components/brand-name';
 
 const GALLERY_IMAGES = [
   { src: '/images/hero/sunset-lounge-laguna.jpg', alt: 'Atardecer desde las reposeras', span: 'col-span-2 row-span-2' },
@@ -40,8 +41,9 @@ export default function GallerySection() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-white mb-4">
-            {t?.gallery?.title || 'Descubrí La Peregrina'}
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-white mb-4 flex items-center justify-center flex-wrap gap-3">
+            <span>Descubrí</span>
+            <BrandName size="lg" className="text-white" />
           </h2>
           <p className="text-lg text-white/60">
             {t?.gallery?.subtitle || 'Cada rincón cuenta una historia'}

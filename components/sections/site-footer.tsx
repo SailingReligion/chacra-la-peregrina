@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale } from '@/lib/locale-context';
-import { Leaf } from 'lucide-react';
+import { BrandName } from '@/components/brand-name';
 
 export default function SiteFooter() {
   const { t } = useLocale();
@@ -16,9 +16,8 @@ export default function SiteFooter() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-center md:text-left">
-            <button onClick={() => scrollTo('hero')} className="inline-flex items-center gap-2 mb-2">
-              <Leaf className="w-5 h-5 text-[#C8956C]" />
-              <span className="font-display text-xl text-white">La Peregrina</span>
+            <button onClick={() => scrollTo('hero')} className="inline-block mb-2">
+              <BrandName size="xl" className="text-white" />
             </button>
             <p className="text-white/40 text-sm">
               {t?.footer?.tagline || 'Eventos exclusivos en armonía con la naturaleza'}
@@ -38,8 +37,8 @@ export default function SiteFooter() {
           </div>
 
           <div className="text-center md:text-right">
-            <p className="text-white/30 text-xs">
-              &copy; {new Date().getFullYear()} Chacra La Peregrina
+            <p className="text-white/30 text-xs flex items-center gap-1 justify-center md:justify-end">
+              &copy; {new Date().getFullYear()} Chacra <BrandName size="xs" className="text-white/30" />
             </p>
             <p className="text-white/20 text-xs mt-1">
               {t?.footer?.location || 'El Pejerrey, Laguna del Sauce · Punta del Este, Uruguay'}

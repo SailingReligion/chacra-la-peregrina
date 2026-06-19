@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useLocale } from '@/lib/locale-context';
 import { withBasePath } from '@/lib/utils';
+import { BrandName } from '@/components/brand-name';
 
 export default function HeroSection() {
   const { t } = useLocale();
@@ -34,9 +35,10 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
         >
-          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 tracking-tight"
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white mb-6 tracking-tight flex items-center justify-center flex-wrap gap-4"
               style={{ textShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
-            {t?.hero?.title || 'Chacra La Peregrina'}
+            <span>Chacra</span>
+            <BrandName size="2xl" className="text-white" />
           </h1>
         </motion.div>
 

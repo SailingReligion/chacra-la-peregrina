@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { useLocale } from '@/lib/locale-context';
 import { localeFlags, localeNames, locales, Locale } from '@/lib/i18n';
+import { BrandName } from '@/components/brand-name';
 
 const NAV_ITEMS = ['inicio', 'lugar', 'eventos', 'galeria', 'faq', 'contacto'] as const;
 const SECTION_IDS: Record<string, string> = {
@@ -49,16 +50,16 @@ export default function SiteHeader() {
             onClick={() => scrollTo('hero')}
             className="flex flex-col leading-none"
           >
-            <span
-              className={`font-display text-xl tracking-wide transition-colors duration-500 ${
+            <div
+              className={`transition-colors duration-500 ${
                 scrolled ? 'text-[#2C2420]' : 'text-white'
               }`}
-              style={!scrolled ? { textShadow: '0 2px 10px rgba(0,0,0,0.7), 0 0 4px rgba(0,0,0,0.5)' } : {}}
+              style={!scrolled ? { filter: 'drop-shadow(0 2px 10px rgba(0,0,0,0.7)) drop-shadow(0 0 4px rgba(0,0,0,0.5))' } : {}}
             >
-              La Peregrina
-            </span>
+              <BrandName size="xl" />
+            </div>
             <span
-              className={`text-[10px] uppercase tracking-[0.3em] transition-colors duration-500 ${
+              className={`text-[10px] uppercase tracking-[0.3em] ml-10 transition-colors duration-500 ${
                 scrolled ? 'text-[#8B7355]' : 'text-white'
               }`}
               style={!scrolled ? { textShadow: '0 2px 8px rgba(0,0,0,0.7)' } : {}}
